@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plateforme d'Offres d'Emploi</title>
+    <link rel="stylesheet" href="./assets/style.css">
+    <!-- Import de la police -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Script principal, 'defer' pour l'exécuter après le parsing du HTML -->
+    <script src="./assets/starter.js" defer></script>
+</head>
+<body>
+    
+    <!-- En-tête de la page -->
+    <header class="header"></header>
+
+    <!-- Conteneur principal -->
+    <main class="container">
+
+        <!-- Système d'onglets Profil / Favoris / Gérer -->
+        <section class="tabs-container">
+            <nav class="tabs-nav">
+                <button class="tab-item tab-item--active" data-tab="profile">Mon Profil</button>
+                <button class="tab-item" data-tab="favorites">Mes Favoris <span id="favorites-count">(0)</span></button>
+                <button class="tab-item" data-tab="manage">Gérer les Offres</button>
+            </nav>
+
+            <!-- Contenu Onglet: Profil -->
+            <div class="tab-content tab-content--active" id="tab-profile">
+                <!-- 'novalidate' désactive la validation HTML par défaut pour utiliser la nôtre -->
+                <form class="profile-form" id="profile-form" novalidate>
+                    <div class="form-group">
+                        <label for="profile-name">Nom complet</label>
+                        <input type="text" id="profile-name" placeholder="Ex: John Doe" required>
+                        <!-- 'aria-live="polite"' pour l'accessibilité (lecture des erreurs) -->
+                        <span class="form-error" aria-live="polite"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-position">Poste recherché</label>
+                        <input type="text" id="profile-position" placeholder="Ex: Développeur Frontend" required>
+                        <span class="form-error" aria-live="polite"></span>
+                    </div>
+                    <div class="form-group form-group--full">
+                        <label for="skill-input">Vos compétences (appuyez sur 'Entrée' pour ajouter)</label>
+                        <input type="text" id="skill-input" placeholder="Ex: React">
+                        <ul class="profile-skills-list" id="profile-skills-list">
+                            <!-- Compétences du profil injectées par JS -->
+                        </ul>
+                    </div>
+                    <button type="submit" class="profile-form__save-btn">Enregistrer le profil</button>
+                </form>
+            </div>
+
+            <!-- Contenu Onglet: Favoris -->
+            <div class="tab-content" id="tab-favorites">
+                <section class="job-listings" id="favorite-jobs-container">
+                    <!-- Offres favorites injectées par JS -->
+                </section>
+            </div>
+
+            <!-- Contenu Onglet: Gérer les Offres -->
+            <div class="tab-content" id="tab-manage">
+                <button class="btn btn--primary" id="add-new-job-btn">Ajouter une nouvelle offre</button>
+                <ul class="manage-job-list" id="manage-jobs-list">
+                    <!-- Liste des offres à gérer injectée par JS -->
+                </ul>
+            </div>
+        </section>
+        
+        <!-- Barre de filtres (Toujours visible) -->
+        <section class="filter-bar" id="filter-bar">
+            <div class="filter-bar__left">
+                <input type="search" class="filter-bar__search" id="search-input" placeholder="Rechercher (poste, entreprise, compétence...)" aria-label="Rechercher des offres">
+                <div class="filter-bar__tags" id="filter-tags-container">
+                    <!-- Tags de filtre actifs injectés par JS -->
+                </div>
+            </div>
+            <button class="filter-bar__clear" id="clear-filters">Clear</button>
+        </section>
+
+        <!-- Section Statistiques -->
+        <section class="stats-counter" id="stats-counter">
+            <p>Chargement des offres...</p>
+        </section>
+
+        <!-- Liste des offres principales -->
+        <section class="job-listings" id="job-listings-container">
+            <!-- Offres d'emploi injectées par JS -->
+        </section>
+        
+    </main>
+
+    <!-- Modale (Popup) pour les DÉTAILS de l'offre -->
+    <div class="modal-overlay" id="job-modal" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="modal-close-btn-view" aria-label="Fermer">&times;</button>
+            <div class="modal-header">
+                <img src="" alt="Logo" id="modal-logo" class="modal-logo">
+                <div>
+                    <h2 id="modal-position" class="modal-position"></h2>
+                    <h3 id="modal-company" class="modal-company"></h3>
+                    <ul class="job-card__meta" id="modal-meta"></ul>
+                </div>
+            </div>
+            <div class="modal-body">
+                <h4>Description du poste</h4>
+                <p id="modal-description"></p>
+                <h4>Compétences requises</h4>
+                <div class="job-card__tags" id="modal-tags"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale (Popup) pour AJOUTER/MODIFIER une offre -->
+    <div class="modal-overlay" id="manage-job-modal" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="modal-close-btn-manage" aria-label="Fermer">&times;</button>
+            <h2 class="modal-position" id="manage-modal-title">Ajouter une offre</h2>
+            <form class="manage-form" id="manage-job-form" novalidate>
+                <!-- Champ caché pour stocker l'ID en mode édition -->
+                <input type="hidden" id="job-id-input">
+                
+                <div class="form-group">
+                    <label for="job-company">Entreprise</label>
+                    <input type="text" id="job-company" required>
+                    <span class="form-error" aria-live="polite"></span>
+                </div>
+                <div class="form-group">
+                    <label for="job-position">Poste</label>
+                    <input type="text" id="job-position" required>
+                    <span class="form-error" aria-live="polite"></span>
+                </div>
+                <div class="form-group">
+                    <label for="job-logo">URL du Logo</label>
+                    <input type="url" id="job-logo" placeholder="https://... (optionnel)">
+                    <span class="form-error" aria-live="polite"></span>
+                </div>
+                <div class="form-group">
+                    <label for="job-contract">Contrat (ex: CDI, Freelance)</label>
+                    <input type="text" id="job-contract" required>
+                    <span class="form-error" aria-live="polite"></span>
+                </div>
+                <div class="form-group">
+                    <label for="job-location">Localisation (ex: Casablanca)</label>
+                    <input type="text" id="job-location" required>
+                    <span class="form-error" aria-live="polite"></span>
+                </div>
+                <div class="form-group">
+                    <label for="job-role">Rôle (ex: Frontend, Backend)</label>
+                    <input type="text" id="job-role" required>
+                    <span class="form-error" aria-live="polite"></span>
+                </div>
+                <div class="form-group">
+                    <label for="job-level">Niveau (ex: Junior, Senior)</label>
+                    <input type="text" id="job-level" required>
+                    <span class="form-error" aria-live="polite"></span>
+                </div>
+                <div class="form-group form-group--full">
+                    <label for="job-skills">Compétences (séparées par des virgules)</label>
+                    <input type="text" id="job-skills" placeholder="ex: React, Node.js, SQL" required>
+                    <span class="form-error" aria-live="polite"></span>
+                </div>
+                <div class="form-group form-group--full">
+                    <label for="job-description">Description</label>
+                    <textarea id="job-description" rows="4" required></textarea>
+                    <span class="form-error" aria-live="polite"></span>
+                </div>
+                <button type="submit" class="btn btn--primary" id="save-job-btn">Sauvegarder l'offre</button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
